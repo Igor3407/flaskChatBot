@@ -1,12 +1,9 @@
-# from flask import Flask, request, jsonify
-import chainlit as cl
+import streamlit as st
 import torch
 import random
 import json
 from model import NeuralNet
 from nltk_utils import bag_of_words, tokenize
-
-# app = Flask(__name__)
 
 # Загрузка модели
 FILE = "data.pth"
@@ -41,7 +38,6 @@ def get_response(user_input):
 
     # Проверяем вероятность предсказания
     if prob.item() > 0.75:
-        # Получаем индекс предсказанного тега
         tag_index = predicted.item()
 
         if tag_index < len(tags):
@@ -52,20 +48,17 @@ def get_response(user_input):
             for intent in intents:
                 if intent['tag'] == tag:
                     return random.choice(intent['responses'])  # Возвращаем случайный ответ из responses
-    return "Извините, я не понял ваш вопрос."  # Ответ по умолчанию
+    return "Извините, я не понял ваш вопрос."
 
-# @app.route('/', methods=['GET', 'POST'])
-# def chat():
-#    if request.method == 'POST':
-#        user_input = request.json.get('message')
-#        response = get_response(user_input)
-#        return jsonify({'response': response})
-#    else:
-#        return "Сервер работает. Отправьте POST-запрос с сообщением."
-@cl.on_message
-async def main(message):
-    response = get_response(message.content)
-    await cl.Message(content=f"Ответ: {response}").send()
+# Streamlit интерфейс
+st.title("Чат-бот на основе ИИ")
+st.write("Введите ваш вопрос:")
 
-# if __name__ == "__main__":
-#     app.run(debug=False)
+user_input = st.text_input("Ваш вопрос:")
+
+if st.button("Получить ответ"):
+    if user_input:
+        response = get_response(user_input)
+        st.write("Ответ:", response)
+    else:
+        st.write("Пожалуйста, введите вопрос.")
