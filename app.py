@@ -35,7 +35,7 @@ def load_intents():
 
 
 # Инициализация модели Hugging Face для генерации ответов
-hf_model = pipeline("text-generation", model="ai-forever/rugpt3small_based_on_gpt2")
+hf_model = pipeline("text-generation", model="ai-forever/mGPT-1.3B-romanian")
 
 model, all_words, tags = load_model()
 intents = load_intents()
