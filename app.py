@@ -35,7 +35,7 @@ def load_intents():
 
 
 # Инициализация модели Hugging Face для генерации ответов
-hf_model = pipeline("text-generation", model="DeepPavlov/rubert-base-cased")
+hf_model = pipeline("text-generation", model="DeepPavlov/ruGPT3Small")
 
 model, all_words, tags = load_model()
 intents = load_intents()
@@ -51,7 +51,7 @@ def get_response(user_input):
     output = model(X_tensor)
     prob, predicted = torch.max(output, dim=1)
 
-    if prob.item() > 0.75:
+    if prob.item() > 0.55:
         tag_index = predicted.item()
         tag = tags[tag_index]
 
@@ -60,7 +60,7 @@ def get_response(user_input):
                 return random.choice(intent['responses'])
     else:
         # Генерация ответа с помощью модели Hugging Face
-        response = hf_model(f"Что ответить на: {user_input}", max_length=50, num_return_sequences=1)
+        response = hf_model(user_input, max_length=50, num_return_sequences=1)
         return response[0]['generated_text']
 
 
