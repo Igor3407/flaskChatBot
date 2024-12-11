@@ -46,9 +46,10 @@ def load_intents():
 # hf_model = pipeline("question-answering", model="AndrewChar/model-QA-5-epoch-RU")
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 
-tokenizer = AutoTokenizer.from_pretrained("cointegrated/rut5-base")
-hf_model = AutoModelForSeq2SeqLM.from_pretrained("cointegrated/rut5-base")
+tokenizer = AutoTokenizer.from_pretrained("milyausha2801/rubert-russian-qa-sberquad")
+hf_model = AutoModelForQuestionAnswering.from_pretrained("milyausha2801/rubert-russian-qa-sberquad")
 
+print("Модель загружена:", hf_model)
 model, all_words, tags = load_model()
 intents = load_intents()
 
@@ -64,7 +65,7 @@ def get_response(user_input):
         output = model(X_tensor)
         prob, predicted = torch.max(output, dim=1)
 
-        if prob.item() > 0.55:
+        if prob.item() > 0.4:
             tag_index = predicted.item()
             tag = tags[tag_index]
 
@@ -75,23 +76,27 @@ def get_response(user_input):
 
 
             # Генерация ответа с помощью модели Hugging Face
-            context = "Мы используем модели для обработки естественного языка и ответа на вопросы."
+            context = "ответы на вопросы."
             inputs = tokenizer.encode_plus(
                 user_input,
-                #context,
+                context,
                 return_tensors='pt',
                 padding=True,
                 truncation=True,
-                max_length=1024
+                max_length=512
             )
 
             outputs = hf_model(**inputs)
-            answer_start_scores = outputs.start_logits
-            answer_end_scores = outputs.end_logits
+
+            answer_start = torch.argmax(outputs.start_logits)
+            answer_end = torch.argmax(outputs.end_logits) + 1
+
+            print("Start logits:", outputs.start_logits)
+            print("End logits:", outputs.end_logits)
 
             # Находим индексы начала и конца ответа
-            answer_start = torch.argmax(answer_start_scores)
-            answer_end = torch.argmax(answer_end_scores) + 1  # Включительно
+            answer_start = torch.argmax(answer_start)
+            answer_end = torch.argmax(answer_end ) + 1  # Включительно
 
             # Проверка, нашел ли модель ответ
             if answer_start.item() >= answer_end.item():
