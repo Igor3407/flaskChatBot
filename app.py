@@ -46,8 +46,8 @@ def load_intents():
 # hf_model = pipeline("question-answering", model="AndrewChar/model-QA-5-epoch-RU")
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 
-tokenizer = AutoTokenizer.from_pretrained("Kirili4ik/mbart_ruDialogSum")
-hf_model = AutoModelForSeq2SeqLM.from_pretrained("Kirili4ik/mbart_ruDialogSum")
+tokenizer = AutoTokenizer.from_pretrained("cointegrated/rut5-base")
+hf_model = AutoModelForSeq2SeqLM.from_pretrained("cointegrated/rut5-base")
 
 model, all_words, tags = load_model()
 intents = load_intents()
