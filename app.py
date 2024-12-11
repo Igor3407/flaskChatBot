@@ -49,7 +49,7 @@ from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 tokenizer = AutoTokenizer.from_pretrained("milyausha2801/rubert-russian-qa-sberquad")
 hf_model = AutoModelForQuestionAnswering.from_pretrained("milyausha2801/rubert-russian-qa-sberquad")
 
-print("Модель загружена:", hf_model)
+print("Модель загружена:", 'hf_model')
 model, all_words, tags = load_model()
 intents = load_intents()
 
@@ -73,10 +73,8 @@ def get_response(user_input):
                 if intent['tag'] == tag:
                     return random.choice(intent['responses'])
         else:
-
-
-            # Генерация ответа с помощью модели Hugging Face
-            context = "ответы на вопросы."
+            # Генерация ответа с использованием самого вопроса как контекста
+            context = user_input
             inputs = tokenizer.encode_plus(
                 user_input,
                 context,
@@ -88,28 +86,22 @@ def get_response(user_input):
 
             outputs = hf_model(**inputs)
 
-            answer_start = torch.argmax(outputs.start_logits)
-            answer_end = torch.argmax(outputs.end_logits) + 1
+            answer_start = torch.argmax(outputs.start_logits).item()
+            answer_end = torch.argmax(outputs.end_logits).item() + 1
 
-            print("Start logits:", outputs.start_logits)
-            print("End logits:", outputs.end_logits)
+            input_ids = inputs['input_ids'][0]
 
-            # Находим индексы начала и конца ответа
-            answer_start = torch.argmax(answer_start)
-            answer_end = torch.argmax(answer_end ) + 1  # Включительно
-
-            # Проверка, нашел ли модель ответ
-            if answer_start.item() >= answer_end.item():
-                # Если ответ не найден, возвращаем стандартное сообщение
+            # Проверка индексов
+            if answer_start < 0 or answer_end > len(input_ids) or answer_start >= answer_end:
                 return "Извините, я не смог найти ответ на ваш вопрос, но я постараюсь помочь!"
 
             # Преобразование токенов в строку
-            answer = tokenizer.convert_tokens_to_string(
-                tokenizer.convert_ids_to_tokens(inputs['input_ids'][0][answer_start:answer_end])
-            )
+            tokens = tokenizer.convert_ids_to_tokens(input_ids[answer_start:answer_end])
+            answer = tokenizer.convert_tokens_to_string(tokens)
+
             return answer
     except Exception as e:
-        return f"задайте вопрос по другому"
+        return f"Ошибка: {str(e)}" ###f"задайте вопрос по другому"
 
 
 # Streamlit интерфейс
