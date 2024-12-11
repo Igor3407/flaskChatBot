@@ -5,6 +5,8 @@ import json
 from transformers import pipeline
 from model import NeuralNet
 from nltk_utils import bag_of_words, tokenize
+import sentencepiece
+from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 import streamlit as st
 import torch
 import random
@@ -44,8 +46,8 @@ def load_intents():
 # hf_model = pipeline("question-answering", model="AndrewChar/model-QA-5-epoch-RU")
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 
-tokenizer = AutoTokenizer.from_pretrained("facebook/m2m100_418M")
-hf_model = AutoModelForSeq2SeqLM.from_pretrained("facebook/m2m100_418M")
+tokenizer = AutoTokenizer.from_pretrained("Kirili4ik/mbart_ruDialogSum")
+hf_model = AutoModelForSeq2SeqLM.from_pretrained("Kirili4ik/mbart_ruDialogSum")
 
 model, all_words, tags = load_model()
 intents = load_intents()
